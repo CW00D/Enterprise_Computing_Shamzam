@@ -1,6 +1,5 @@
-import requests
-from flask import Flask, request
-import json
+import sqlite3
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
@@ -21,7 +20,7 @@ def get_tracks():
     pass
     #HANDLE 200 (OK)
 
-@app.route("/db/tracks",methods=["GET"])
+@app.route("/db/tracks/search",methods=["GET"])
 def search_tracks():
     pass
     #HANDLE 200 (OK)

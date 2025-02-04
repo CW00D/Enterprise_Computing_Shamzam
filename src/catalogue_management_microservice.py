@@ -1,12 +1,8 @@
 import requests
-from flask import Flask, request
-import json
-
-with open("config/credentials.json") as infile:
-  json_obj=json.load(infile)
-  KEY = json_obj["AUDDIO_TOKEN"]
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
+DATABASE_URL = "http://localhost:3001"
 
 # Add a new track
 @app.route("/tracks", methods=["POST"])
@@ -31,6 +27,10 @@ def get_tracks():
 # Get track by title and artist
 @app.route("/tracks/search", methods=["GET"])
 def search_tracks():
+    title = request.args.get("title")
+    artist = request.args.get("artist")
+    print(title)
+    print(artist)
     pass
     #HANDLE 200 (OK)
     #HANDLE 404 (NOT FOUND)
