@@ -9,9 +9,9 @@ DATABASE_URL = "http://localhost:3001"
 def add_track():
     data = request.get_json()
     if not data or "title" not in data or "artist" not in data or "file_path" not in data:
-        return jsonify({"error": "Missing required fields"}), 400 # Returns 400 Bad Request
+        return jsonify({"error": "Missing required fields"}), 400
     response = requests.post(f"{DATABASE_URL}/db/tracks", json=data)
-    return jsonify(response.json()), response.status_code # Should return 201 Created
+    return jsonify(response.json()), response.status_code
 
 # Delete a track
 @app.route("/tracks/<int:id>", methods=["DELETE"])
