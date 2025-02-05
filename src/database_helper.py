@@ -40,16 +40,13 @@ class MusicTrackDatabase:
             connection.commit()
             return cursor.lastrowid
 
-    def remove_track(self, title, artist):
-        """Deletes a track with given values and returns number of deleted rows."""
-        with sqlite3.connect(self.database_path) as connection:
-            cursor = connection.cursor()
-            cursor.execute(
-                f"DELETE FROM {self.table} WHERE title=? AND artist=?",
-                (title, artist)
-            )
-            connection.commit()
-            return cursor.rowcount
+def remove_track(self, track_id):
+    with sqlite3.connect(self.database_path) as connection:
+        cursor = connection.cursor()
+        cursor.execute(f"DELETE FROM {self.table} WHERE id=?", (track_id,))
+        connection.commit()
+        return cursor.rowcount
+
         
     def get_track(self, title, artist):
         """Retrieves a single track with given details (returns None if not found)."""
