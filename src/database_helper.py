@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-class Music_Track_Database:
+class MusicTrackDatabase:
     def __init__(self, table="tracks"):
         self.table = table
         self.database_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../data"))
@@ -29,18 +29,42 @@ class Music_Track_Database:
             )
             connection.commit()
 
-    def add_track(self):
-        #Add track to db
-        pass
+    def insert(self, js):
+        """Insert a new track into the database."""
+        with sqlite3.connect(self.database_path) as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                f"INSERT INTO {self.table} (title, artist, file_path) VALUES (?, ?, ?)",
+                (js["title"], js["artist"], js["file_path"])
+            )
+            connection.commit()
+            return cursor.lastrowid
 
-    def remove_track(self):
-        #Remove a track from db
-        pass
+    def remove_track(self, title, artist):
+        """Deletes a track with given values and returns number of deleted rows."""
+        with sqlite3.connect(self.database_path) as connection:
+            cursor = connection.cursor()
+            cursor.execute(
+                f"DELETE FROM {self.table} WHERE title=? AND artist=?",
+                (title, artist)
+            )
+            connection.commit()
+            return cursor.rowcount
+        
+    def get_track(self, title, artist):
+        """Retrieves a single track with given details (returns None if not found)."""
+        with sqlite3.connect(self.database_path) as connection:
+            cursor = connection.cursor()
+            cursor.execute(f"SELECT id, title, artist, file_path FROM {self.table} WHERE title=? AND artist=?", (title, artist))
+            row = cursor.fetchone()
+            if row:
+                return {"id": row[0], "title": row[1], "artist": row[2], "file_path": row[3]}
+            return None
 
     def get_all_tracks(self):
-        #Return all tracks from db
-        pass
-
-    def check_track(self):
-        #Check if track in db
-        pass
+        """Retrieves all tracks from the database (returns an empty list if none exist)."""
+        with sqlite3.connect(self.database_path) as connection:
+            cursor = connection.cursor()
+            cursor.execute(f"SELECT id, title, artist, file_path FROM {self.table}")
+            rows = cursor.fetchall()
+            return [{"id": row[0], "title": row[1], "artist": row[2], "file_path": row[3]} for row in rows] if rows else []
