@@ -30,15 +30,23 @@ class MusicTrackDatabase:
             connection.commit()
 
     def insert(self, js):
-        """Insert a new track into the database."""
+        """Insert a new track into the database if the title is not already present."""
         with sqlite3.connect(self.database_path) as connection:
             cursor = connection.cursor()
+            
+            # Check if the title already exists
+            cursor.execute(f"SELECT 1 FROM {self.table} WHERE title = ?", (js["title"],))
+            if cursor.fetchone():  # If a row is found, the title exists
+                return 409  # Conflict
+            
+            # Insert the new track
             cursor.execute(
                 f"INSERT INTO {self.table} (title, encoded_track) VALUES (?, ?)",
                 (js["title"], js["encoded_track"])
             )
             connection.commit()
             return cursor.lastrowid
+
 
     def remove_track_by_title(self, title):
         """Deletes a track by ID and returns the number of deleted rows."""
