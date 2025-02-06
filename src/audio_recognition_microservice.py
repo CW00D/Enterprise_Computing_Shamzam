@@ -28,8 +28,11 @@ def recognise():
 
     if response.status_code == 200:
         return jsonify(response.json()), 200
+    elif response.status_code == 404:
+        return jsonify({"message": "Track not found in catalogue"}), 200
     else:
-        return jsonify({"error": "Track not in Catalogue"}), response.status_code
+        return jsonify({"error": "Catalogue service error"}), response.status_code
+
 
 def get_track_title_from_api(encoded_track_fragment):
     url = "https://api.audd.io/"
