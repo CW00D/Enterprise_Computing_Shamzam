@@ -7,7 +7,7 @@ class MusicTrackDatabase:
         self.database_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../data"))
         self.database_path = os.path.join(self.database_dir, self.table + ".db")
 
-        self.ensure_data_directory()  # Ensure /data directory exists
+        self.ensure_data_directory()
         self.make()
 
     def ensure_data_directory(self):
@@ -22,10 +22,8 @@ class MusicTrackDatabase:
             cursor.execute(
                 f"""
                 CREATE TABLE IF NOT EXISTS {self.table} (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    title TEXT NOT NULL,
-                    artist TEXT NOT NULL,
-                    file_path TEXT NOT NULL
+                    title TEXT PRIMARY KEY,
+                    encoded_track TEXT NOT NULL
                 )
                 """
             )
@@ -36,13 +34,13 @@ class MusicTrackDatabase:
         with sqlite3.connect(self.database_path) as connection:
             cursor = connection.cursor()
             cursor.execute(
-                f"INSERT INTO {self.table} (title, artist, file_path) VALUES (?, ?, ?)",
-                (js["title"], js["artist"], js["file_path"])
+                f"INSERT INTO {self.table} (title, encoded_track) VALUES (?, ?)",
+                (js["title"], js["encoded_track"])
             )
             connection.commit()
             return cursor.lastrowid
 
-    def remove_track_by_id(self, track_id):
+    def remove_track_by_title(self, title):
         """Deletes a track by ID and returns the number of deleted rows."""
         with sqlite3.connect(self.database_path) as connection:
             cursor = connection.cursor()
@@ -50,20 +48,20 @@ class MusicTrackDatabase:
             connection.commit()
             return cursor.rowcount
 
-    def find_track_by_title_and_artist(self, title, artist):
+    def find_track_by_title(self, title):
         """Retrieves a single track with given details (returns None if not found)."""
         with sqlite3.connect(self.database_path) as connection:
             cursor = connection.cursor()
-            cursor.execute(f"SELECT id, title, artist, file_path FROM {self.table} WHERE title=? AND artist=?", (title, artist))
+            cursor.execute(f"SELECT title, encoded_track FROM {self.table} WHERE title=?", (title))
             row = cursor.fetchone()
             if row:
-                return {"id": row[0], "title": row[1], "artist": row[2], "file_path": row[3]}
+                return {"title": row[0], "encoded_track": row[1]}
             return None
 
     def get_all_tracks(self):
         """Retrieves all tracks from the database (returns an empty list if none exist)."""
         with sqlite3.connect(self.database_path) as connection:
             cursor = connection.cursor()
-            cursor.execute(f"SELECT id, title, artist, file_path FROM {self.table}")
+            cursor.execute(f"SELECT title, encoded_track FROM {self.table}")
             rows = cursor.fetchall()
-            return [{"id": row[0], "title": row[1], "artist": row[2], "file_path": row[3]} for row in rows] if rows else []
+            return [{"title": row[0], "encoded_track": row[1]} for row in rows] if rows else []

@@ -18,16 +18,15 @@ class TestDatabaseMicroservice(unittest.TestCase):
     @patch("database_management_microservice.db.insert")
     def test_add_track_success(self, mock_insert):
         """Test adding a track successfully"""
-        mock_insert.return_value = 1  # Simulate database returning track ID 1
+        mock_insert.return_value = "Blinding Lights"
 
         response = self.app.post("/db/tracks", json={
             "title": "Blinding Lights",
-            "artist": "The Weeknd",
-            "file_path": "/audio/blinding_lights.mp3"
+            "encoded_track": "This is an encoded track"
         })
 
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json, {"id": 1, "message": "Track added successfully"})
+        self.assertEqual(response.json, {"title": "Blinding Lights", "message": "Track added successfully"})
 
     def test_add_track_missing_fields(self):
         """Test adding a track with missing fields"""
@@ -36,22 +35,22 @@ class TestDatabaseMicroservice(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json, {"error": "Missing required fields"})
 
-    @patch("database_management_microservice.db.remove_track_by_id")
+    @patch("database_management_microservice.db.remove_track_by_title")
     def test_delete_track_success(self, mock_remove):
         """Test deleting a track successfully"""
-        mock_remove.return_value = 1  # Simulate one row deleted
+        mock_remove.return_value = "Blinding Lights"
 
-        response = self.app.delete("/db/tracks/1")
+        response = self.app.delete("/db/tracks/Highway to Hell")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, {"message": "Track deleted successfully"})
 
-    @patch("database_management_microservice.db.remove_track_by_id")
+    @patch("database_management_microservice.db.remove_track_by_title")
     def test_delete_track_not_found(self, mock_remove):
         """Test deleting a track that does not exist"""
         mock_remove.return_value = 0  # Simulate no rows deleted
 
-        response = self.app.delete("/db/tracks/999")
+        response = self.app.delete("/db/tracks/This is a fake track")
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json, {"error": "Track not found"})
@@ -60,14 +59,14 @@ class TestDatabaseMicroservice(unittest.TestCase):
     def test_get_tracks_success(self, mock_get_all):
         """Test getting all tracks successfully"""
         mock_get_all.return_value = [
-            {"id": 1, "title": "Blinding Lights", "artist": "The Weeknd", "file_path": "/audio/blinding_lights.mp3"}
+            {"title": "Blinding Lights", "encoded_track": "This is an encoded track"}
         ]
 
         response = self.app.get("/db/tracks")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, [
-            {"id": 1, "title": "Blinding Lights", "artist": "The Weeknd", "file_path": "/audio/blinding_lights.mp3"}
+            {"title": "Blinding Lights", "encoded_track": "This is an encoded track"}
         ])
 
     @patch("database_management_microservice.db.get_all_tracks")
@@ -80,32 +79,28 @@ class TestDatabaseMicroservice(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, [])  # Should return an empty list
 
-    @patch("database_management_microservice.db.find_track_by_title_and_artist")
+    @patch("database_management_microservice.db.find_track_by_title")
     def test_search_track_success(self, mock_search):
         """Test searching for a track successfully"""
         mock_search.return_value = {
-            "id": 1,
             "title": "Blinding Lights",
-            "artist": "The Weeknd",
-            "file_path": "/audio/blinding_lights.mp3"
+            "encoded_track": "This is an encoded track"
         }
 
-        response = self.app.get("/db/tracks/search?title=Blinding Lights&artist=The Weeknd")
+        response = self.app.get("/db/tracks/search?title=Blinding Lights")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, {
-            "id": 1,
             "title": "Blinding Lights",
-            "artist": "The Weeknd",
-            "file_path": "/audio/blinding_lights.mp3"
+            "encoded_track": "This is an encoded track"
         })
 
-    @patch("database_management_microservice.db.find_track_by_title_and_artist")
+    @patch("database_management_microservice.db.find_track_by_title")
     def test_search_track_not_found(self, mock_search):
         """Test searching for a track that does not exist"""
-        mock_search.return_value = None  # Simulate track not found
+        mock_search.return_value = None
 
-        response = self.app.get("/db/tracks/search?title=Nonexistent&artist=Unknown")
+        response = self.app.get("/db/tracks/search?title=Nonexistent")
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json, {"error": "Track not found"})

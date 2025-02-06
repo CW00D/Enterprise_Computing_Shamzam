@@ -8,15 +8,15 @@ DATABASE_MANAGEMENT_MICROSERVICE_URL = "http://localhost:3001"
 @app.route("/tracks", methods=["POST"])
 def add_track():
     data = request.get_json()
-    if not data or "title" not in data or "artist" not in data or "file_path" not in data:
+    if not data or "title" not in data or "encoded_track" not in data:
         return jsonify({"error": "Missing required fields"}), 400
     response = requests.post(f"{DATABASE_MANAGEMENT_MICROSERVICE_URL}/db/tracks", json=data)
     return jsonify(response.json()), response.status_code
 
 # Delete a track
-@app.route("/tracks/<int:id>", methods=["DELETE"])
-def delete_track(id):
-    response = requests.delete(f"{DATABASE_MANAGEMENT_MICROSERVICE_URL}/db/tracks/{id}")
+@app.route("/tracks/<string:title>", methods=["DELETE"])
+def delete_track(title):
+    response = requests.delete(f"{DATABASE_MANAGEMENT_MICROSERVICE_URL}/db/tracks/{title}")
     return jsonify(response.json()), response.status_code
 
 # Get all tracks
@@ -29,8 +29,7 @@ def get_tracks():
 @app.route("/tracks/search", methods=["GET"])
 def search_tracks():
     title = request.args.get("title")
-    artist = request.args.get("artist")
-    response = requests.get(f"{DATABASE_MANAGEMENT_MICROSERVICE_URL}/db/tracks/search?title={title}&artist={artist}")
+    response = requests.get(f"{DATABASE_MANAGEMENT_MICROSERVICE_URL}/db/tracks/search?title={title}")
     return jsonify(response.json()), response.status_code
 
 if __name__ == "__main__":

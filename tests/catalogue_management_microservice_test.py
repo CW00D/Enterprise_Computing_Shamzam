@@ -19,16 +19,15 @@ class TestCatalogueMicroservice(unittest.TestCase):
     def test_add_track_success(self, mock_post):
         """Test adding a track successfully"""
         mock_post.return_value.status_code = 201
-        mock_post.return_value.json.return_value = {"id": 1, "message": "Track added successfully"}
+        mock_post.return_value.json.return_value = {"title": "Highway to Hell", "message": "Track added successfully"}
 
         response = self.app.post("/tracks", json={
             "title": "Blinding Lights",
-            "artist": "The Weeknd",
-            "file_path": "/audio/blinding_lights.mp3"
+            "encoded_track": "placeholder encoding"
         })
 
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(response.json, {"id": 1, "message": "Track added successfully"})
+        self.assertEqual(response.json, {"title": "Highway to Hell", "message": "Track added successfully"})
 
     @patch("requests.post")
     def test_add_track_missing_fields(self, mock_post):
@@ -44,7 +43,7 @@ class TestCatalogueMicroservice(unittest.TestCase):
         mock_delete.return_value.status_code = 200
         mock_delete.return_value.json.return_value = {"message": "Track deleted successfully"}
 
-        response = self.app.delete("/tracks/1")
+        response = self.app.delete("/tracks/Highway to Hell")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, {"message": "Track deleted successfully"})
@@ -55,7 +54,7 @@ class TestCatalogueMicroservice(unittest.TestCase):
         mock_delete.return_value.status_code = 404
         mock_delete.return_value.json.return_value = {"error": "Track not found"}
 
-        response = self.app.delete("/tracks/999")
+        response = self.app.delete("/tracks/This is a fake track")
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json, {"error": "Track not found"})
@@ -65,14 +64,14 @@ class TestCatalogueMicroservice(unittest.TestCase):
         """Test getting all tracks successfully"""
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = [
-            {"id": 1, "title": "Blinding Lights", "artist": "The Weeknd", "file_path": "/audio/blinding_lights.mp3"}
+            {"title": "Blinding Lights", "encoded_track": "This is an encoded track"}
         ]
 
         response = self.app.get("/tracks")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, [
-            {"id": 1, "title": "Blinding Lights", "artist": "The Weeknd", "file_path": "/audio/blinding_lights.mp3"}
+            {"title": "Blinding Lights", "encoded_track": "This is an encoded track"}
         ])
 
     @patch("requests.get")
@@ -80,20 +79,16 @@ class TestCatalogueMicroservice(unittest.TestCase):
         """Test searching for a track successfully"""
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = {
-            "id": 1,
             "title": "Blinding Lights",
-            "artist": "The Weeknd",
-            "file_path": "/audio/blinding_lights.mp3"
+            "encoded_track": "This is an encoded track"
         }
 
-        response = self.app.get("/tracks/search?title=Blinding Lights&artist=The Weeknd")
+        response = self.app.get("/tracks/search?title=Blinding Lights")
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json, {
-            "id": 1,
             "title": "Blinding Lights",
-            "artist": "The Weeknd",
-            "file_path": "/audio/blinding_lights.mp3"
+            "encoded_track": "This is an encoded track"
         })
 
     @patch("requests.get")
@@ -102,7 +97,7 @@ class TestCatalogueMicroservice(unittest.TestCase):
         mock_get.return_value.status_code = 404
         mock_get.return_value.json.return_value = {"error": "Track not found"}
 
-        response = self.app.get("/tracks/search?title=Nonexistent&artist=Unknown")
+        response = self.app.get("/tracks/search?title=Nonexistent")
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.json, {"error": "Track not found"})

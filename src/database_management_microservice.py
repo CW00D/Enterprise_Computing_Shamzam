@@ -8,15 +8,15 @@ db = MusicTrackDatabase()
 def add_track():
     data = request.get_json()
 
-    if not data or "title" not in data or "artist" not in data or "file_path" not in data:
+    if not data or "title" not in data or "encoded_track" not in data:
         return jsonify({"error": "Missing required fields"}), 400
 
-    track_id = db.insert(data)
-    return jsonify({"id": track_id, "message": "Track added successfully"}), 201
+    track = db.insert(data)
+    return jsonify({"title": track, "message": "Track added successfully"}), 201
 
-@app.route("/db/tracks/<int:id>", methods=["DELETE"])
-def delete_track(id):
-    deleted_rows = db.remove_track_by_id(id)
+@app.route("/db/tracks/<string:title>", methods=["DELETE"])
+def delete_track(title):
+    deleted_rows = db.remove_track_by_title(title)
 
     if deleted_rows == 0:
         return jsonify({"error": "Track not found"}), 404
@@ -31,12 +31,11 @@ def get_tracks():
 @app.route("/db/tracks/search", methods=["GET"])
 def search_tracks():
     title = request.args.get("title")
-    artist = request.args.get("artist")
 
-    if not title or not artist:
-        return jsonify({"error": "Missing title or artist query parameters"}), 400
+    if not title:
+        return jsonify({"error": "Missing title query parameters"}), 400
 
-    track = db.find_track_by_title_and_artist(title, artist)
+    track = db.find_track_by_title(title)
 
     if track is None:
         return jsonify({"error": "Track not found"}), 404
