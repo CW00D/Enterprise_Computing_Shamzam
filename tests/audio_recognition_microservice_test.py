@@ -71,7 +71,7 @@ class TestAudioRecognitionMicroservice(unittest.TestCase):
         response = self.app.post("/recognise", json={"encoded_track_fragment": "base64_audio_data"})
 
         self.assertEqual(response.status_code, 500)
-        self.assertEqual(response.json, {"error": "Catalogue service error"})
+        self.assertEqual(response.json, {"error": "Unexpected error from catalogue service"})
 
     def test_recognise_missing_encoded_track(self):
         """Test request with missing encoded_track_fragment"""

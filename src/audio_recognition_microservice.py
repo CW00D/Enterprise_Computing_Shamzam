@@ -1,11 +1,16 @@
+import os
 import requests
 from flask import Flask, request, jsonify
-import json
+from dotenv import load_dotenv
 
-# Load API token from credentials file
-with open("config/credentials.json") as infile:
-    json_obj = json.load(infile)
-    AUDDIO_TOKEN = json_obj.get("AUDDIO_TOKEN", "")
+# Load environment variables from .env file
+load_dotenv()
+
+# Retrieve the API token
+AUDDIO_TOKEN = os.getenv("AUDDIO_TOKEN", "")
+
+if not AUDDIO_TOKEN:
+    raise ValueError("AUDDIO_TOKEN is not set in the environment or .env file!")
 
 app = Flask(__name__)
 CATALOGUE_URL = "http://localhost:3000"
@@ -23,16 +28,18 @@ def recognise():
     if title == "Track not recognised":
         return jsonify({"error": "Track not recognised"}), 404
     
-    print(title)
-    response = requests.get(f"{CATALOGUE_URL}/tracks/search", params={"title": title})
+    try:
+        response = requests.get(f"{CATALOGUE_URL}/tracks/search", params={"title": title})
+        response.raise_for_status()
+    except requests.exceptions.RequestException:
+        return jsonify({"error": "Catalogue service error"}), 500
 
     if response.status_code == 200:
         return jsonify(response.json()), 200
     elif response.status_code == 404:
         return jsonify({"message": "Track not found in catalogue"}), 200
     else:
-        return jsonify({"error": "Catalogue service error"}), response.status_code
-
+        return jsonify({"error": "Unexpected error from catalogue service"}), response.status_code
 
 def get_track_title_from_api(encoded_track_fragment):
     url = "https://api.audd.io/"
@@ -42,12 +49,15 @@ def get_track_title_from_api(encoded_track_fragment):
         "return": "title",
     }
     
-    response = requests.post(url, data=data)
-
-    if response.status_code == 200:
+    try:
+        response = requests.post(url, data=data)
+        response.raise_for_status()
         result = response.json()
+        
         if result.get("status") == "success" and result.get("result"):
             return result["result"]["title"]
+    except requests.exceptions.RequestException:
+        return "Track not recognised"
     
     return "Track not recognised"
 
