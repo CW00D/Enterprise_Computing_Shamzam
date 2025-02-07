@@ -3,6 +3,7 @@ import pytest
 import base64
 
 CATALOGUE_URL = "http://localhost:3000"
+DATABASE_URL = "http://localhost:3001"
 
 @pytest.fixture
 def sample_track():
@@ -10,6 +11,12 @@ def sample_track():
         "title": "Dont Look Back in Anger",
         "encoded_track": encode_audio_to_base64("./Music/Tracks/Dont Look Back in Anger.wav")
     }
+
+@pytest.fixture(autouse=True)
+def reset_database():
+    """Ensures the database is cleared after every test."""
+    yield
+    requests.post(f"{DATABASE_URL}/db/reset")
 
 #Helper Function
 def encode_audio_to_base64(file_path):
