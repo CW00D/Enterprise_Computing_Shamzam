@@ -53,9 +53,10 @@ def get_track_title_from_api(encoded_track_fragment):
         response = requests.post(url, data=data)
         response.raise_for_status()
         result = response.json()
-        
+
         if result.get("status") == "success" and result.get("result"):
             return result["result"]["title"]
+        
     except requests.exceptions.RequestException:
         return "Track not recognised"
     

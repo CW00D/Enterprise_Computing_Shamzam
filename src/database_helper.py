@@ -59,7 +59,7 @@ class MusicTrackDatabase:
         """Retrieves a single track with given details (returns None if not found)."""
         with sqlite3.connect(self.database_path) as connection:
             cursor = connection.cursor()
-            cursor.execute(f"SELECT title, encoded_track FROM {self.table} WHERE title=?", (title))
+            cursor.execute(f"SELECT title, encoded_track FROM {self.table} WHERE title=?", (title,))
             row = cursor.fetchone()
             if row:
                 return {"title": row[0], "encoded_track": row[1]}
