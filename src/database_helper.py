@@ -72,3 +72,10 @@ class MusicTrackDatabase:
             cursor.execute(f"SELECT title, encoded_track FROM {self.table}")
             rows = cursor.fetchall()
             return [{"title": row[0], "encoded_track": row[1]} for row in rows] if rows else []
+
+    def reset_database(self):
+        """Deletes all tracks from the database."""
+        with sqlite3.connect(self.database_path) as connection:
+            cursor = connection.cursor()
+            cursor.execute("DELETE FROM tracks")
+            connection.commit()

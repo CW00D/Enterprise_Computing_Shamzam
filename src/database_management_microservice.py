@@ -45,5 +45,11 @@ def search_tracks():
 
     return jsonify(track), 200
 
+@app.route("/db/reset", methods=["POST"])
+def reset_db():
+    """Clears all tracks from the database (test cleanup)."""
+    db.reset_database()
+    return jsonify({"message": "Database reset successfully"}), 200
+
 if __name__ == "__main__":
     app.run(host="localhost", port=3001, debug=True)
