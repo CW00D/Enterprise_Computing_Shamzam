@@ -47,7 +47,6 @@ class MusicTrackDatabase:
             connection.commit()
             return cursor.lastrowid
 
-
     def remove_track_by_title(self, title):
         """Deletes a track by ID and returns the number of deleted rows."""
         with sqlite3.connect(self.database_path) as connection:

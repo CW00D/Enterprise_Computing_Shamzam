@@ -14,6 +14,7 @@ def add_track():
     track = db.insert(data)
     if track == 409:
         return jsonify({"error": "Attempting to add duplicate track"}), 409
+    
     return jsonify({"title": track, "message": "Track added successfully"}), 201
 
 @app.route("/db/tracks/<string:title>", methods=["DELETE"])
