@@ -51,7 +51,7 @@ class MusicTrackDatabase:
         """Deletes a track by ID and returns the number of deleted rows."""
         with sqlite3.connect(self.database_path) as connection:
             cursor = connection.cursor()
-            cursor.execute(f"DELETE FROM {self.table} WHERE id=?", (track_id,))
+            cursor.execute(f"DELETE FROM {self.table} WHERE title=?", (title,))
             connection.commit()
             return cursor.rowcount
 
