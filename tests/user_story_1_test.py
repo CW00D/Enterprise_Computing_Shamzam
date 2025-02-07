@@ -7,7 +7,7 @@ CATALOGUE_URL = "http://localhost:3000"
 @pytest.fixture
 def sample_track():
     return {
-        "title": "Test Song",
+        "title": "Dont Look Back in Anger",
         "encoded_track": encode_audio_to_base64("./Music/Tracks/Dont Look Back in Anger.wav")
     }
 
