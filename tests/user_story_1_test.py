@@ -56,3 +56,14 @@ def test_duplicate_track(sample_track):
     
     # Depending on implementation, it might return 409 Conflict or allow duplicates
     assert response.status_code == 409
+
+def test_add_track_blank_title():
+    """Test that adding a track with a blank or whitespace-only title returns a 400 error."""
+    blank_title_track = {
+        "title": "   ",  # Title is only whitespace
+        "encoded_track": encode_audio_to_base64("./Music/Tracks/Blinding Lights.wav")
+    }
+    response = requests.post(f"{CATALOGUE_URL}/tracks", json=blank_title_track)
+    
+    assert response.status_code == 400
+    assert response.json()["error"] == "Track title cannot be blank or whitespace"
