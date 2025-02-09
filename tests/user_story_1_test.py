@@ -66,4 +66,4 @@ def test_add_track_blank_title():
     response = requests.post(f"{CATALOGUE_URL}/tracks", json=blank_title_track)
     
     assert response.status_code == 400
-    assert response.json()["error"] == "Track title cannot be blank or whitespace"
+    assert response.json()["error"] == "Track title cannot be just whitespace"
