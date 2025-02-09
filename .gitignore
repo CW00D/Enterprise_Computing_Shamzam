@@ -5,3 +5,4 @@ data/*.db
 data/processed/
 logs/
 config/credentials.json
+Gen AI Declaration.pdf
