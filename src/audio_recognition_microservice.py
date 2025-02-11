@@ -14,16 +14,22 @@ logging.basicConfig(filename="logs/audio.log", level=logging.INFO, format="%(asc
 load_dotenv()
 
 # Retrieve the API token
-AUDDIO_TOKEN = os.getenv("AUDDIO_TOKEN", "")
+AUDDIO_TOKEN: str = os.getenv("AUDDIO_TOKEN", "")
 
 if not AUDDIO_TOKEN:
     raise ValueError("AUDDIO_TOKEN is not set in the environment or .env file!")
 
 app = Flask(__name__)
-CATALOGUE_URL = "http://localhost:3000"
+CATALOGUE_URL: str = "http://localhost:3000"
 
 @app.route("/recognise", methods=["POST"])
-def recognise():
+def recognise() -> tuple:
+    """
+    Recognizes an audio fragment and checks if it exists in the catalogue.
+
+    Returns:
+        A JSON response with track details if found, or an error message.
+    """
     data = request.json
     encoded_track_fragment = data.get("encoded_track_fragment")
 
@@ -49,7 +55,16 @@ def recognise():
         logging.warning("Unexpected error from catalogue service")
         return jsonify({"error": "Unexpected error from catalogue service"}), response.status_code
 
-def get_track_title_from_api(encoded_track_fragment):
+def get_track_title_from_api(encoded_track_fragment: str) -> str:
+    """
+    Calls the external AudD.io API to recognize the track title.
+
+    Args:
+        encoded_track_fragment (str): The base64-encoded audio fragment.
+
+    Returns:
+        str: The track title if recognized, otherwise "Track not recognised".
+    """
     url = "https://api.audd.io/"
     data = {
         "api_token": AUDDIO_TOKEN,

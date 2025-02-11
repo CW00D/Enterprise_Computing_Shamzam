@@ -13,7 +13,13 @@ app = Flask(__name__)
 db = MusicTrackDatabase()
 
 @app.route("/db/tracks", methods=["POST"])
-def add_track():
+def add_track() -> tuple:
+    """
+    Adds a new track to the database.
+
+    Returns:
+        A JSON response indicating success or failure.
+    """
     data = request.get_json()
 
     if not data or "title" not in data or "encoded_track" not in data:
@@ -29,7 +35,13 @@ def add_track():
     return jsonify({"title": track, "message": "Track added successfully"}), 201
 
 @app.route("/db/tracks/<string:title>", methods=["DELETE"])
-def delete_track(title):
+def delete_track(title) -> tuple:
+    """
+    Deletes a track by title.
+
+    Returns:
+        A JSON response indicating success or failure.
+    """
     deleted_rows = db.remove_track_by_title(title)
 
     if deleted_rows == 0:
@@ -40,13 +52,25 @@ def delete_track(title):
     return jsonify({"message": "Track deleted successfully"}), 200
 
 @app.route("/db/tracks", methods=["GET"])
-def get_tracks():
+def get_tracks() -> tuple:
+    """
+    Retrieves all tracks from the database.
+
+    Returns:
+        A JSON list of tracks.
+    """
     tracks = db.get_all_tracks()
     logging.info("Tracks returned")
     return jsonify(tracks if tracks else []), 200
 
 @app.route("/db/tracks/search", methods=["GET"])
-def search_tracks():
+def search_tracks() -> tuple:
+    """
+    Searches for a track by title.
+
+    Returns:
+        A JSON response with the track details or an error.
+    """
     title = request.args.get("title")
 
     if not title:
@@ -64,8 +88,13 @@ def search_tracks():
     return jsonify(track), 200
 
 @app.route("/db/reset", methods=["POST"])
-def reset_db():
-    """Clears all tracks from the database (test cleanup)."""
+def reset_db() -> tuple:
+    """
+    Clears all tracks from the database (used for test cleanup only).
+
+    Returns:
+        A JSON response indicating success.
+    """
     db.reset_database()
     logging.info("Database reset successfully")
     return jsonify({"message": "Database reset successfully"}), 200
