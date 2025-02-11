@@ -36,20 +36,15 @@ def recognise():
     if title == "Track not recognised":
         logging.warning("Track not recognised")
         return jsonify({"error": "Track not recognised"}), 404
-    
-    try:
-        response = requests.get(f"{CATALOGUE_URL}/tracks/search", params={"title": title})
-        response.raise_for_status()
-    except requests.exceptions.RequestException:
-        logging.warning("Catalogue service error")
-        return jsonify({"error": "Catalogue service error"}), 500
 
+    response = requests.get(f"{CATALOGUE_URL}/tracks/search", params={"title": title})
     if response.status_code == 200:
         logging.info("Track found in catalogue")
         return jsonify(response.json()), 200
     elif response.status_code == 404:
+        print("Track not found in catalogue")
         logging.info("Track not found in catalogue")
-        return jsonify({"message": "Track not found in catalogue"}), 200
+        return jsonify({"error": "Track not found in catalogue"}), 404
     else:
         logging.warning("Unexpected error from catalogue service")
         return jsonify({"error": "Unexpected error from catalogue service"}), response.status_code

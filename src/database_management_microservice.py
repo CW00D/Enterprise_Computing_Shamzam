@@ -56,6 +56,7 @@ def search_tracks():
     track = db.find_track_by_title(title)
 
     if track is None:
+        print("returning 404")
         logging.warning("Track not found")
         return jsonify({"error": "Track not found"}), 404
 
