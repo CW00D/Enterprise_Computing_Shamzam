@@ -3,11 +3,11 @@ from flask import Flask, request, jsonify
 import logging
 import os
 
-# Ensure logs directory exists
-os.makedirs("logs", exist_ok=True)
+# Define log directory within the microservice folder
+log_dir = os.path.join(os.path.dirname(__file__))
 
 # Configure logging
-logging.basicConfig(filename="logs/catalogue.log", level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(filename=os.path.join(log_dir, "catalogue.log"), level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 app = Flask(__name__)
 DATABASE_MANAGEMENT_MICROSERVICE_URL: str = "http://localhost:3001"

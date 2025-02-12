@@ -1,13 +1,15 @@
 from flask import Flask, request, jsonify
-from database_helper import MusicTrackDatabase
 import logging
 import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from database_helper import MusicTrackDatabase
 
-# Ensure logs directory exists
-os.makedirs("logs", exist_ok=True)
+# Define log directory within the microservice folder
+log_dir = os.path.join(os.path.dirname(__file__))
 
 # Configure logging
-logging.basicConfig(filename="logs/database.log", level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(filename=os.path.join(log_dir, "database.log"), level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 app = Flask(__name__)
 db = MusicTrackDatabase()

@@ -4,11 +4,11 @@ from dotenv import load_dotenv
 import logging
 import os
 
-# Ensure logs directory exists
-os.makedirs("logs", exist_ok=True)
+# Define log directory within the microservice folder
+log_dir = os.path.join(os.path.dirname(__file__))
 
 # Configure logging
-logging.basicConfig(filename="logs/audio.log", level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(filename=os.path.join(log_dir, "audio.log"), level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Load environment variables from .env file
 load_dotenv()

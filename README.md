@@ -1,130 +1,132 @@
-# Music Catalogue Microservices
-
-This project consists of three microservices that work together to manage and recognize music tracks. These microservices include:
-
-- **Catalogue Microservice**: Manages the music track catalogue.
-- **Audio Recognition Microservice**: Recognizes music track fragments.
-- **Database Microservice**: Manages the track data in the database.
+# Audio Recognition Microservices
 
 ## Table of Contents
-1. [Requirements](#requirements)
-2. [Installation](#installation)
-3. [Microservices Setup](#microservices-setup)
-4. [Running the Services](#running-the-services)
-5. [API Endpoints](#api-endpoints)
-6. [Logging](#logging)
-7. [Testing](#testing)
-8. [Troubleshooting](#troubleshooting)
+1. [Project Overview](#project-overview)
+2. [File Structure](#file-structure)
+3. [Microservices Overview](#microservices-overview)
+4. [Prerequisits](#prerequisits)
+5. [Setup Instructions](#setup-instructions)
+6. [Testing](#testing)
+7. [Logging](#logging)
+8. [Music Files](#music-files)
+
+## Project Overview
+This project consists of three microservices that enable audio recognition and catalogue management using Flask and SQLite. The system allows administrators and users to:
 
 
-## Requirements
+- Add a music track to the catalogue, so that a user can listen to it.
+- Remove a music track from the catalogue, so that a user cannot listen to it.
+- List the names of the music tracks in the catalogue, to know what it contains.
+- Convert a music fragment to a music track in the catalogue, to listen to it.
 
-- **Python 3.8+** (or your preferred version)
-- **Conda** (for managing environments)
-- **Requests library**
-- **Flask** (web framework for APIs)
-- **dotenv** (for environment variable management)
+The project follows a microservices architecture, with separate services handling database management, catalogue management, and audio recognition.
 
-## Installation
-
-1. **Clone the repository**:
-    ```bash
-    git clone https://your-repository-url.git
-    cd your-repository-name
-    ```
-
-2. **Create a Conda environment**:
-    ```bash
-    conda create --name music_catalogue_env python=3.8
-    conda activate music_catalogue_env
-    ```
-
-3. **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-    Or, if you are using conda to install dependencies, you can create a `environment.yml` file and run:
-
-    ```bash
-    conda env create -f environment.yml
-    conda activate music_catalogue_env
-    ```
-
-## Microservices Setup
-
-The microservices are structured as follows:
-
-- **Catalogue Microservice**: Handles the addition, deletion, and retrieval of tracks.
-- **Database Microservice**: Manages track data in the database.
-- **Audio Recognition Microservice**: Uses audio recognition to identify music tracks.
-
-## Running the Services
-
-To run the services in separate terminal windows, follow these steps:
-
-1. Open a new terminal window and run the Catalogue Microservice:
-    ```bash
-    python catalogue_microservice.py
-    ```
-
-2. Open another terminal window and run the Database Microservice:
-    ```bash
-    python database_microservice.py
-    ```
-
-3. Open a final terminal window and run the Audio Recognition Microservice:
-    ```bash
-    python audio_microservice.py
-    ```
-
-If you are using **Anaconda PowerShell**, make sure to activate your Conda environment in each window before running the microservices:
-```powershell
-conda activate music_catalogue_env
+## File Structure
+```
+│──src/
+│   │──catalogue_management_microservice/
+│   │──database_management_microservice/
+│   │──audio_recognition_microservice/
+│   │──database_helper.py
+│
+│──tests/
+│   │──user_story_1_tests/
+│   │──user_story_2_tests/
+│   │──user_story_3_tests/
+│   │──user_story_4_tests/
+│
+│──logs/  (Empty in submission, will store logs during execution)
+│   │──Catalogue_log
+│   │──Database_log
+│   │──Audio_log
+│
+│──Music/  (Empty in submission, users should add music files here for testing)
+│   │──Fragments/
+│   │──Tracks/
+│
+│──data/  (Stores SQLite database files, empty for submission)
+│   │──data.db/
+│
+│──Readme.md
+│──GenAIDeclaration.pdf
+│──Design_document
+│──requirements.txt
 ```
 
-Alternatively, you can use a script to launch all services simultaneously.
+## Microservices Overview
 
-## API Endpoints
-Here are the available endpoints for each service:
+### 1. **Database Management Microservice** (Port: 3001)
+Handles storage and retrieval of music tracks using an SQLite database.
+- **POST /db/tracks** – Add a new track
+- **DELETE /db/tracks/\<title\>** – Remove a track
+- **GET /db/tracks** – Retrieve all tracks
+- **GET /db/tracks/search?title=\<title\>** – Search for a track by title
+- **POST /db/reset** – Reset the database (for testing)
 
-### Catalogue Microservice
-- **POST /tracks**: Add a new track to the catalogue
-- **DELETE /tracks/\<title\>**: Delete a track by title
-- **DELETE /tracks/**: Delete track without a title (invalid request)
-- **GET /tracks**: Get all tracks in the catalogue
-- **GET /tracks/search**: Search for a track by title
-### Audio Recognition Microservice
-- **POST /recognise**: Recognizes a track from an audio fragment
-### Database Microservice
-- **POST /db/tracks**: Add a new track to the database
-- **DELETE /db/tracks/\<title\>**: Delete a track from the database by title
-- **GET /db/tracks**: Get all tracks from the database
-- **GET /db/tracks/search**: Search for a track in the database by title
-- **POST /db/reset**: Reset the database
+### 2. **Catalogue Management Microservice** (Port: 3000)
+Interacts with the database service to manage the music catalogue.
+- **POST /tracks** – Add a track to the catalogue
+- **DELETE /tracks/\<title\>** – Delete a track
+- **GET /tracks** – Get all tracks
+- **GET /tracks/search?title=\<title\>** – Search for a track
 
-## Logging
-Each microservice has its own individual log file in the ```/logs``` directory:
+### 3. **Audio Recognition Microservice** (Port: 3002)
+Recognizes audio fragments using the AudD.io API and checks if they exist in the catalogue.
+- **POST /recognise** – Identify an audio fragment and check the catalogue
 
-- ```catalogue_service.log```
-- ```audio_service.log```
-- ```database_service.log```
+## Prerequisites
+Ensure you have the following installed:
+- Python 3.8+
+- `pip`
 
-Logs are automatically generated for all incoming requests, errors, and other significant events.
+## Setup Instructions
+
+1. **Extract the submission ZIP file**
+```sh
+unzip submission.zip
+cd submission
+```
+
+2. **Install dependencies**
+```sh
+pip install -r requirements.txt
+```
+
+3. **Set up environment variables**
+Create a `.env` file inside `src/Audio_recognition_microservice/` and add:
+```
+AUDDIO_TOKEN=<your_audd_io_api_key>
+```
+
+4. **Run the microservices**
+Start each microservice in a separate terminal:
+
+- **Database Service**
+  ```sh
+  python src/database_management_microservice.py
+  ```
+
+- **Catalogue Service**
+  ```sh
+  python src/catalogue_management_microservice.py
+  ```
+
+- **Audio Recognition Service**
+  ```sh
+  python src/audio_recognition_microservice.py
+  ```
 
 ## Testing
-To run tests for each microservice:
-
-1. Ensure all services are running.
-
-2. Use **pytest** to run tests:
-
-```
-pytest
+Tests are organized under `tests/`. To run them:
+```sh
+pytest tests/test_name.py
 ```
 
-Make sure to configure your test environment, including the required ```.env``` files or database setup, before running tests.
+## Logging
+Logs will be generated in the `logs/` directory for each microservice.
 
-## Troubleshooting
-If you encounter any issues, check the individual service logs located in the ```/logs``` directory for detailed error messages and request data.
+## Music Files
+For testing, users should add audio files to the `Music/Fragments/` and `Music/Tracks/` directories respectively before running the services.
 
+---
+For additional details, refer to the `Design_document`.
