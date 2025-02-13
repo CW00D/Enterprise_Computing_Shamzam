@@ -28,13 +28,16 @@ def add_track() -> tuple:
         logging.warning("Missing required fields")
         return jsonify({"error": "Missing required fields"}), 400
 
-    track = db.insert(data)
-    if track == 409:
-        logging.warning("Attempting to add duplicate track")
-        return jsonify({"error": "Attempting to add duplicate track"}), 409
-    
-    logging.info("Track added successfully")
-    return jsonify({"title": track, "message": "Track added successfully"}), 201
+    try:
+        track = db.insert(data)
+        if track == 409:
+            logging.warning("Attempting to add duplicate track")
+            return jsonify({"error": "Attempting to add duplicate track"}), 409
+        
+        logging.info("Track added successfully")
+        return jsonify({"title": track, "message": "Track added successfully"}), 201
+    except:
+        return jsonify({"error": "Database unreachable"}), 503
 
 @app.route("/db/tracks/<string:title>", methods=["DELETE"])
 def delete_track(title) -> tuple:
@@ -44,14 +47,17 @@ def delete_track(title) -> tuple:
     Returns:
         A JSON response indicating success or failure.
     """
-    deleted_rows = db.remove_track_by_title(title)
+    try:
+        deleted_rows = db.remove_track_by_title(title)
 
-    if deleted_rows == 0:
-        logging.warning("Track not found")
-        return jsonify({"error": "Track not found"}), 404
+        if deleted_rows == 0:
+            logging.warning("Track not found")
+            return jsonify({"error": "Track not found"}), 404
 
-    logging.info("Track deleted successfully")
-    return jsonify({"message": "Track deleted successfully"}), 200
+        logging.info("Track deleted successfully")
+        return jsonify({"message": "Track deleted successfully"}), 200
+    except:
+        return jsonify({"error": "Database unreachable"}), 503
 
 @app.route("/db/tracks", methods=["GET"])
 def get_tracks() -> tuple:
@@ -61,9 +67,12 @@ def get_tracks() -> tuple:
     Returns:
         A JSON list of tracks.
     """
-    tracks = db.get_all_tracks()
-    logging.info("Tracks returned")
-    return jsonify(tracks if tracks else []), 200
+    try:
+        tracks = db.get_all_tracks()
+        logging.info("Tracks returned")
+        return jsonify(tracks if tracks else []), 200
+    except:
+        return jsonify({"error": "Database unreachable"}), 503
 
 @app.route("/db/tracks/search", methods=["GET"])
 def search_tracks() -> tuple:
@@ -79,14 +88,17 @@ def search_tracks() -> tuple:
         logging.warning("Missing title query parameters")
         return jsonify({"error": "Missing title query parameters"}), 400
 
-    track = db.find_track_by_title(title)
+    try:
+        track = db.find_track_by_title(title)
 
-    if track is None:
-        logging.warning("Track not found")
-        return jsonify({"error": "Track not found"}), 404
+        if track is None:
+            logging.warning("Track not found")
+            return jsonify({"error": "Track not found"}), 404
 
-    logging.info("Track found")
-    return jsonify(track), 200
+        logging.info("Track found")
+        return jsonify(track), 200
+    except:
+        return jsonify({"error": "Database unreachable"}), 503
 
 @app.route("/db/reset", methods=["POST"])
 def reset_db() -> tuple:

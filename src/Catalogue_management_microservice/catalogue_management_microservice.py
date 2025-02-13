@@ -22,15 +22,9 @@ def add_track() -> tuple:
         A JSON response with the track addition status.
     """
     data = request.get_json()
-
     if not data or "title" not in data or "encoded_track" not in data:
         logging.warning("Missing required fields")
         return jsonify({"error": "Missing required fields"}), 400
-    
-    title = data.get("title", "").strip()  # Strip whitespace
-    if not title:  # Check if title is empty after stripping whitespace
-        logging.warning("Track title cannot be just whitespace")
-        return jsonify({"error": "Track title cannot be just whitespace"}), 400
     
     response = requests.post(f"{DATABASE_MANAGEMENT_MICROSERVICE_URL}/db/tracks", json=data)
     logging.info(response.status_code)
@@ -45,9 +39,6 @@ def delete_track(title: str) -> tuple:
     Returns:
         A JSON response with the deletion status.
     """
-    if not title.strip():
-        logging.warning("Blank track title not valid")
-        return jsonify({"error": "Blank track title not valid"}), 400
     response = requests.delete(f"{DATABASE_MANAGEMENT_MICROSERVICE_URL}/db/tracks/{title}")
     return jsonify(response.json()), response.status_code
 

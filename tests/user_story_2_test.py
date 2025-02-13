@@ -1,6 +1,10 @@
 import requests
 import pytest
 import base64
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src", "Database_management_microservice"))
+from database_management_microservice import app, db
 
 CATALOGUE_URL = "http://localhost:3000"
 DATABASE_URL = "http://localhost:3001"
@@ -50,14 +54,29 @@ def test_delete_nonexistent_track():
     assert response.status_code == 404
     assert response.json()["error"] == "Track not found"
 
-def test_delete_blanks_title():
-    """Test that attempting to delete with a blank (all blankspaces) title returns a 400 error."""
-    response = requests.delete(f"{CATALOGUE_URL}/tracks/  ")
-    assert response.status_code == 400
-    assert response.json().get("error") == "Blank track title not valid"
-
 def test_delete_no_title():
     """Test that attempting to delete with no title provided returns a 400 error."""
     response = requests.delete(f"{CATALOGUE_URL}/tracks/")
     assert response.status_code == 400
     assert response.json().get("error") == "No track title provided"
+
+def test_delete_track_database_unreachable(monkeypatch, sample_track):
+    """
+    Test that deleting a track returns a 503 when the database is unreachable.
+    """
+    client = app.test_client()
+
+    # Add the track normally
+    add_response = client.post("/db/tracks", json=sample_track)
+    assert add_response.status_code == 201
+
+    # Monkeypatch db.remove_track_by_title to simulate a database failure
+    def fake_remove_track_by_title(title):
+        raise Exception("Simulated database failure")
+    monkeypatch.setattr(db, "remove_track_by_title", fake_remove_track_by_title)
+
+    # Attempt to delete the track
+    response = client.delete(f"/db/tracks/{sample_track['title']}")
+    assert response.status_code == 503
+    data = response.get_json()
+    assert data.get("error") == "Database unreachable"

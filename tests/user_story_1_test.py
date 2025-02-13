@@ -1,6 +1,12 @@
 import requests
 import pytest
 import base64
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src", "Database_management_microservice"))
+from database_management_microservice import app, db
+
+
 
 CATALOGUE_URL = "http://localhost:3000"
 DATABASE_URL = "http://localhost:3001"
@@ -57,13 +63,16 @@ def test_duplicate_track(sample_track):
     assert response.status_code == 409
     assert response.json()["error"] == "Attempting to add duplicate track"
 
-def test_add_track_blank_title():
-    """Test that adding a track with a blank or whitespace-only title returns a 400 error."""
-    blank_title_track = {
-        "title": "   ",  # Title is only whitespace
-        "encoded_track": encode_audio_to_base64("./Music/Tracks/Blinding Lights.wav")
-    }
-    response = requests.post(f"{CATALOGUE_URL}/tracks", json=blank_title_track)
+def test_add_track_database_unreachable(monkeypatch, sample_track):
+    client = app.test_client()
     
-    assert response.status_code == 400
-    assert response.json()["error"] == "Track title cannot be just whitespace"
+    # Force an exception when inserting a track to simulate a database failure
+    def fake_insert(data):
+        raise Exception("Simulated database failure")
+    monkeypatch.setattr(db, "insert", fake_insert)
+    
+    response = client.post("/db/tracks", json=sample_track)
+    assert response.status_code == 503
+    assert response.get_json().get("error") == "Database unreachable"
+
+

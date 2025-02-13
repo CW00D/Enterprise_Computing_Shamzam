@@ -1,6 +1,10 @@
 import requests
 import pytest
 import base64
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src", "Database_management_microservice"))
+from database_management_microservice import app, db
 
 CATALOGUE_URL = "http://localhost:3000"
 DATABASE_URL = "http://localhost:3001"
@@ -48,3 +52,20 @@ def test_list_tracks_empty():
     response = requests.get(f"{CATALOGUE_URL}/tracks")
     assert response.status_code == 200
     assert response.json() == []
+
+def test_list_tracks_database_unreachable(monkeypatch):
+    """
+    Test that listing tracks returns a 503 when the database is unreachable.
+    """
+    client = app.test_client()
+
+    # Monkeypatch db.get_all_tracks to simulate a database failure
+    def fake_get_all_tracks():
+        raise Exception("Simulated database failure")
+    monkeypatch.setattr(db, "get_all_tracks", fake_get_all_tracks)
+
+    # Attempt to fetch all tracks
+    response = client.get("/db/tracks")
+    assert response.status_code == 503
+    data = response.get_json()
+    assert data.get("error") == "Database unreachable"
