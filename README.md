@@ -24,33 +24,39 @@ The project follows a microservices architecture, with separate services handlin
 ## File Structure
 ```
 │──src/
-│   │──catalogue_management_microservice/
-│   │──database_management_microservice/
-│   │──audio_recognition_microservice/
-│   │──database_helper.py
+│   │──Catalogue_management_microservice/
+│   |   │──catalogue_management_microservice.py
+│   |   └──catalogue.log (Note: Generated on microservice execution)
+|   |
+│   │──Database_management_microservice/
+|   |   │──database_management_microservice.py
+│   |   └──database.log (Note: Generated on microservice execution)
+|   |
+│   │──Audio_recognition_microservice/
+│   |   │──audio_recognition_microservice.py
+│   |   └──audio.log (Note: Generated on microservice execution)
+|   |
+│   └──database_helper.py
 │
 │──tests/
-│   │──user_story_1_tests/
-│   │──user_story_2_tests/
-│   │──user_story_3_tests/
-│   │──user_story_4_tests/
+│   │──user_story_1_tests.py
+│   │──user_story_2_tests.py
+│   │──user_story_3_tests.py
+│   └──user_story_4_tests.py
 │
-│──logs/  (Empty in submission, will store logs during execution)
-│   │──Catalogue_log
-│   │──Database_log
-│   │──Audio_log
-│
-│──Music/  (Empty in submission, users should add music files here for testing)
+│──Music/  (Note: Empty in submission, users should add music files here for testing)
 │   │──Fragments/
-│   │──Tracks/
+│   |   └──[INSERT FRAGMENT .WAV FILES HERE]
+│   └──Tracks/
+│       └──[INSERT TRACK .WAV FILES HERE]
 │
-│──data/  (Stores SQLite database files, empty for submission)
-│   │──data.db/
+│──data/
+│   └──data.db (Note: Generated on database microservice execution)
 │
-│──Readme.md
-│──GenAIDeclaration.pdf
-│──Design_document
 │──requirements.txt
+│──README.md
+│──Design_Document.pdf
+└──Gen_AI_Declaration.pdf
 ```
 
 ## Microservices Overview
@@ -103,17 +109,17 @@ Start each microservice in a separate terminal:
 
 - **Database Service**
   ```sh
-  python src/database_management_microservice.py
+  python src/Database_management_microservice/database_management_microservice.py
   ```
 
 - **Catalogue Service**
   ```sh
-  python src/catalogue_management_microservice.py
+  python src/Catalogue_management_microservice/catalogue_management_microservice.py
   ```
 
 - **Audio Recognition Service**
   ```sh
-  python src/audio_recognition_microservice.py
+  python src/Audio_recognition_microservice/audio_recognition_microservice.py
   ```
 
 ## Testing
@@ -123,10 +129,10 @@ pytest tests/test_name.py
 ```
 
 ## Logging
-Logs will be generated in the `logs/` directory for each microservice.
+Log files will be generated in the directory for each microservice.
 
 ## Music Files
-For testing, users should add audio files to the `Music/Fragments/` and `Music/Tracks/` directories respectively before running the services.
+For testing, users should add relevant .wav files to the `Music/Fragments/` and `Music/Tracks/` directories respectively before running the services.
 
 ---
-For additional details, refer to the `Design_document`.
+For microservice enpoint diagrams refer to the `Design_Document.pdf`.
