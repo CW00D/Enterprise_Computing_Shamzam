@@ -37,33 +37,32 @@ def recognise() -> tuple:
         logging.warning("Missing encoded_track_fragment")
         return jsonify({"error": "Missing encoded_track_fragment"}), 400
 
-    title = get_track_title_from_api(encoded_track_fragment)
+    result = get_track_title_from_api(encoded_track_fragment)
 
-    if title == "Track not recognised":
-        logging.warning("Track not recognised")
-        return jsonify({"error": "Track not recognised"}), 404
+    if not result.get("success"):
+        logging.warning(f"API error: {result.get('error_message')}")
+        return jsonify({"error": result.get("error_message")}), result.get("error_code")
+    
+    title = result.get("title")
 
     response = requests.get(f"{CATALOGUE_URL}/tracks/search", params={"title": title})
     if response.status_code == 200:
         logging.info("Track found in catalogue")
         return jsonify(response.json()), 200
     elif response.status_code == 404:
-        print("Track not found in catalogue")
         logging.info("Track not found in catalogue")
         return jsonify({"error": "Track not found in catalogue"}), 404
     else:
         logging.warning("Unexpected error from catalogue service")
         return jsonify({"error": "Unexpected error from catalogue service"}), response.status_code
 
-def get_track_title_from_api(encoded_track_fragment: str) -> str:
+def get_track_title_from_api(encoded_track_fragment: str) -> dict:
     """
     Calls the external AudD.io API to recognize the track title.
 
-    Args:
-        encoded_track_fragment (str): The base64-encoded audio fragment.
-
     Returns:
-        str: The track title if recognized, otherwise "Track not recognised".
+        dict: On success, returns {"success": True, "title": <track title>}.
+              On failure, returns {"success": False, "error_code": <HTTP code>, "error_message": <description>}.
     """
     url = "https://api.audd.io/"
     data = {
@@ -78,12 +77,29 @@ def get_track_title_from_api(encoded_track_fragment: str) -> str:
         result = response.json()
 
         if result.get("status") == "success" and result.get("result"):
-            return result["result"]["title"]
-        
-    except requests.exceptions.RequestException:
-        return "Track not recognised"
+            return {"success": True, "title": result["result"]["title"]}
+        elif result.get("status") == "error":
+            error_info = result.get("error", {})
+            error_code = error_info.get("error_code", "#100")
+            error_message = error_info.get("error_message", "An unknown error occurred.")
+            error_mapping = {
+                902: 401,  # API limit reached 
+                901: 401,  # No api_token passed
+                900: 401,  # Wrong API token.
+                600: 400,  # Incorrect audio URL.
+                700: 400,  # No file sent for recognition.
+                500: 422,  # Incorrect audio file.
+                400: 413,  # Too big audio file.
+                300: 422,  # Fingerprinting error.
+                100: 500   # Unknown error.
+            }
+            http_status = error_mapping.get(error_code, 500)
+            return {"success": False, "error_code": http_status, "error_message": error_message}
+    except requests.exceptions.RequestException as e:
+        return {"success": False, "error_code": 500, "error_message": f"External API request failed: {str(e)}"}
     
-    return "Track not recognised"
+    # Fallback error:
+    return {"success": False, "error_code": 500, "error_message": "Track not recognised"}
 
 if __name__ == "__main__":
-    app.run(host="localhost", port=3002)
+    app.run(host="localhost", port=3002, debug=True)

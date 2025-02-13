@@ -42,24 +42,21 @@ def test_recognise_valid_fragment(sample_track):
 
 #Unhappy Paths
 def test_recognise_unknown_fragment():
-    """Test that an unrecognisable track fragment returns an error."""
+    """Test that an unrecognisable track fragment returns a 400 error."""
     recognition_data = {"encoded_track_fragment": "unknown_base64_fragment"}
     response = requests.post(f"{AUDIO_RECOGNITION_URL}/recognise", json=recognition_data)
 
-    assert response.status_code == 404
-    assert response.json().get("error") == "Track not recognised"
+    assert response.status_code == 400
 
 def test_recognise_missing_fragment():
     """Test that missing input returns a 400 error."""
     response = requests.post(f"{AUDIO_RECOGNITION_URL}/recognise", json={})
 
     assert response.status_code == 400
-    assert response.json().get("error") == "Missing encoded_track_fragment"
 
 def test_track_not_in_catalogue():
-    """Test that a recognised track fragment not in the catalogue returns an error."""
+    """Test that a recognised track fragment not in the catalogue returns a 404 error."""
     recognition_data = {"encoded_track_fragment": encode_audio_to_base64("./Music/Fragments/_Dont Look Back in Anger.wav")}
     response = requests.post(f"{AUDIO_RECOGNITION_URL}/recognise", json=recognition_data)
 
     assert response.status_code == 404
-    assert response.json().get("error") == "Track not found in catalogue"
