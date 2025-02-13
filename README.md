@@ -34,7 +34,8 @@ The project follows a microservices architecture, with separate services handlin
 |   |
 │   │──Audio_recognition_microservice/
 │   |   │──audio_recognition_microservice.py
-│   |   └──audio.log (Note: Generated on microservice execution)
+│   |   │──audio.log (Note: Generated on microservice execution)
+│   |   └──.env (to be added my user and should contain their own AUDD.io API KEY)
 |   |
 │   └──database_helper.py
 │
