@@ -41,9 +41,10 @@ def test_add_valid_track(sample_track):
 #Unhappy Paths
 def test_add_track_missing_fields():
     """Test that adding a track with missing fields returns a 400 error."""
-    incomplete_track = {"title": "Incomplete Song"}
+    incomplete_track = {"title": "Incomplete Song"}  # Missing encoded_track
     response = requests.post(f"{CATALOGUE_URL}/tracks", json=incomplete_track)
     assert response.status_code == 400
+    assert "error" in response.json()
 
 def test_duplicate_track(sample_track):
     """Test that adding the same track twice is handled correctly."""
@@ -53,8 +54,8 @@ def test_duplicate_track(sample_track):
     # Attempt to add the same track again
     response = requests.post(f"{CATALOGUE_URL}/tracks", json=sample_track)
     
-    # Depending on implementation, it might return 409 Conflict or allow duplicates
     assert response.status_code == 409
+    assert response.json()["error"] == "Attempting to add duplicate track"
 
 def test_add_track_blank_title():
     """Test that adding a track with a blank or whitespace-only title returns a 400 error."""
@@ -65,3 +66,4 @@ def test_add_track_blank_title():
     response = requests.post(f"{CATALOGUE_URL}/tracks", json=blank_title_track)
     
     assert response.status_code == 400
+    assert response.json()["error"] == "Track title cannot be just whitespace"

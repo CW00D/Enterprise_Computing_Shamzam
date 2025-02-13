@@ -48,13 +48,16 @@ def test_delete_nonexistent_track():
     """Test that deleting a non-existent track returns a 404 error."""
     response = requests.delete(f"{CATALOGUE_URL}/tracks/NonExistentTrack")
     assert response.status_code == 404
+    assert response.json()["error"] == "Track not found"
 
 def test_delete_blanks_title():
     """Test that attempting to delete with a blank (all blankspaces) title returns a 400 error."""
     response = requests.delete(f"{CATALOGUE_URL}/tracks/  ")
     assert response.status_code == 400
+    assert response.json().get("error") == "Blank track title not valid"
 
 def test_delete_no_title():
     """Test that attempting to delete with no title provided returns a 400 error."""
     response = requests.delete(f"{CATALOGUE_URL}/tracks/")
     assert response.status_code == 400
+    assert response.json().get("error") == "No track title provided"
