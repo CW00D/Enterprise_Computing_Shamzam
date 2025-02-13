@@ -94,7 +94,8 @@ def get_track_title_from_api(encoded_track_fragment: str) -> dict:
                 100: 500   # Unknown error.
             }
             http_status = error_mapping.get(error_code, 500)
-            return {"success": False, "error_code": http_status, "error_message": error_message}
+            logging.warning(error_message)
+            return {"success": False, "error_code": http_status, "error_message": "AUDD.io API Error"}
     except requests.exceptions.RequestException as e:
         return {"success": False, "error_code": 500, "error_message": f"External API request failed: {str(e)}"}
     

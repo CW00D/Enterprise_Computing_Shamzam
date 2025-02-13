@@ -47,7 +47,7 @@ def test_recognise_unknown_fragment():
     response = requests.post(f"{AUDIO_RECOGNITION_URL}/recognise", json=recognition_data)
 
     assert response.status_code == 400
-    assert response.json().get("error") == "Track not recognised"
+    assert response.json().get("error") == "AUDD.io API Error"
 
 def test_recognise_missing_fragment():
     """Test that missing input returns a 400 error."""
