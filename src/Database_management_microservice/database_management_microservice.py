@@ -22,9 +22,9 @@ def add_track():
     Returns:
         A JSON response indicating success or failure.
     """
-    if not request.is_json():
+    if not request.is_json:
         logging.warning("No json content type")
-        return 415
+        return "", 415
     
     data = request.get_json()
 
@@ -36,13 +36,13 @@ def add_track():
         track = db.insert(data)
         if track == 409:
             logging.warning("Attempting to add duplicate track")
-            return 409
+            return "", 409
         
         logging.info("Track added successfully")
         return jsonify({"title": track, "message": "Track added successfully"}), 201
     except:
         logging.warning("Database unreachable")
-        return 503
+        return "", 503
 
 @app.route("/db/tracks/<string:title>", methods=["DELETE"])
 def delete_track(title):
@@ -52,18 +52,18 @@ def delete_track(title):
     Returns:
         A JSON response indicating success or failure.
     """
-       try:
+    try:
         deleted_rows = db.remove_track_by_title(title)
 
         if deleted_rows == 0:
             logging.warning("Track not found")
-            return 404
+            return "", 404
 
         logging.info("Track deleted successfully")
         return jsonify({"message": "Track deleted successfully"}), 200
     except:
         logging.warning("Databse unreachable")
-        return 503
+        return "", 503
 
 @app.route("/db/tracks", methods=["GET"])
 def get_tracks():
@@ -79,7 +79,7 @@ def get_tracks():
         return jsonify(tracks if tracks else []), 200
     except:
         logging.warning("Databse unreachable")
-        return 503
+        return "", 503
 
 @app.route("/db/tracks/search", methods=["GET"])
 def search_tracks():
@@ -93,20 +93,20 @@ def search_tracks():
 
     if not title:
         logging.warning("Missing title query parameters")
-        return 400
+        return "", 400
 
     try:
         track = db.find_track_by_title(title)
 
         if track is None:
             logging.warning("Track not found")
-            return 404
+            return "", 404
 
         logging.info("Track found")
         return jsonify(track), 200
     except:
         logging.warning("Database unreachable")
-        return 503
+        return "", 503
 
 @app.route("/db/reset", methods=["POST"])
 def reset_db():

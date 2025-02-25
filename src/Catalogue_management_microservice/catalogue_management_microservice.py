@@ -22,17 +22,19 @@ def add_track():
         A JSON response with the track addition status.
     """
 
-    if not request.is_json():
+    if not request.is_json:
         logging.warning("No json content type")
-        return 415
+        return "", 415
 
     data = request.get_json()
     if not data or "title" not in data or "encoded_track" not in data:
         logging.warning("Missing required fields")
         return jsonify({"error": "Missing required fields"}), 400
+
+    #ADD CHECK FOR ENDCODED TRACK DECODING INTO A .WAV
     
     response = requests.post(f"{DATABASE_MANAGEMENT_MICROSERVICE_URL}/db/tracks", json=data)
-    return response.status_code
+    return "", response.status_code
 
 # Delete a track
 @app.route("/tracks/<string:title>", methods=["DELETE"])
@@ -43,10 +45,15 @@ def delete_track(title: str):
     Returns:
         A JSON response with the deletion status.
     """
-    response = requests.delete(f"{DATABASE_MANAGEMENT_MICROSERVICE_URL}/db/tracks/{title}")
-    return response.status_code
 
-#Delete with no title to catch error
+    if type(title) != str:
+        logging.warning("Title provided wasnt a string")
+        return "", 415
+
+    response = requests.delete(f"{DATABASE_MANAGEMENT_MICROSERVICE_URL}/db/tracks/{title}")
+    return "", response.status_code
+
+# Delete with no title to catch error
 @app.route("/tracks/", methods=["DELETE"])
 def delete_without_title():
     """
@@ -56,7 +63,7 @@ def delete_without_title():
         A JSON error response.
     """
     logging.warning("No track title provided")
-    return 400
+    return "", 400
 
 # Get all tracks
 @app.route("/tracks", methods=["GET"])
@@ -68,7 +75,7 @@ def get_tracks():
         A JSON list of tracks.
     """
     response = requests.get(f"{DATABASE_MANAGEMENT_MICROSERVICE_URL}/db/tracks")
-    return response.status_code
+    return "", response.status_code
 
 # Get track by title and artist
 @app.route("/tracks/search", methods=["GET"])
@@ -81,7 +88,7 @@ def search_tracks():
     """
     title = request.args.get("title")
     response = requests.get(f"{DATABASE_MANAGEMENT_MICROSERVICE_URL}/db/tracks/search?title={title}")
-    return response.status_code
+    return "", response.status_code
 
 if __name__ == "__main__":
     app.run(host="localhost", port=3000, debug=True)

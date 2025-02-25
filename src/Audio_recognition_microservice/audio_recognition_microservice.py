@@ -20,12 +20,12 @@ if not AUDDIO_TOKEN:
     raise ValueError("AUDDIO_TOKEN is not set in the environment or .env file!")
 
 app = Flask(__name__)
-CATALOGUE_URL: str = "http://localhost:3000"
+DATABASE_URL = "http://localhost:3001"
 
 @app.route("/recognise", methods=["POST"])
-def recognise() -> tuple:
+def recognise():
     """
-    Recognizes an audio fragment and checks if it exists in the catalogue.
+    Recognizes an audio fragment and checks if it exists in the database.
 
     Returns:
         A JSON response with track details if found, or an error message.
@@ -45,18 +45,18 @@ def recognise() -> tuple:
     
     title = result.get("title")
 
-    response = requests.get(f"{CATALOGUE_URL}/tracks/search", params={"title": title})
+    response = requests.get(f"{DATABASE_URL}/db/tracks/search", params={"title": title})
     if response.status_code == 200:
-        logging.info("Track found in catalogue")
+        logging.info("Track found in database")
         return jsonify(response.json()), 200
     elif response.status_code == 404:
-        logging.info("Track not found in catalogue")
-        return jsonify({"error": "Track not found in catalogue"}), 404
+        logging.info("Track not found in database")
+        return jsonify({"error": "Track not found in database"}), 404
     else:
-        logging.warning("Unexpected error from catalogue service")
-        return jsonify({"error": "Unexpected error from catalogue service"}), response.status_code
+        logging.warning("Unexpected error from database service")
+        return jsonify({"error": "Unexpected error from database service"}), response.status_code
 
-def get_track_title_from_api(encoded_track_fragment: str) -> dict:
+def get_track_title_from_api(encoded_track_fragment: str):
     """
     Calls the external AudD.io API to recognize the track title.
 
