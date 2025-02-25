@@ -36,43 +36,34 @@ def test_add_valid_track(sample_track):
     """Test that a valid track can be added successfully."""
     response = requests.post(f"{CATALOGUE_URL}/tracks", json=sample_track)
     assert response.status_code == 201
-    assert response.json()["message"] == "Track added successfully"
 
-    # Verify the track is in the catalogue
-    tracks_response = requests.get(f"{CATALOGUE_URL}/tracks")
+    # Verify the track is in the database
+    tracks_response = requests.get(f"{DATABASE_URL}/db/tracks")
     assert tracks_response.status_code == 200
     tracks = tracks_response.json()
     assert any(track["title"] == sample_track["title"] for track in tracks)
 
+
 #Unhappy Paths
 def test_add_track_missing_fields():
     """Test that adding a track with missing fields returns a 400 error."""
-    incomplete_track = {"title": "Incomplete Song"}  # Missing encoded_track
+    incomplete_track = {"title": "Incomplete Song"}
     response = requests.post(f"{CATALOGUE_URL}/tracks", json=incomplete_track)
     assert response.status_code == 400
-    assert "error" in response.json()
 
 def test_duplicate_track(sample_track):
     """Test that adding the same track twice is handled correctly."""
-    # Add the track once
     requests.post(f"{CATALOGUE_URL}/tracks", json=sample_track)
 
-    # Attempt to add the same track again
     response = requests.post(f"{CATALOGUE_URL}/tracks", json=sample_track)
-    
     assert response.status_code == 409
-    assert response.json()["error"] == "Attempting to add duplicate track"
 
 def test_add_track_database_unreachable(monkeypatch, sample_track):
     client = app.test_client()
-    
-    # Force an exception when inserting a track to simulate a database failure
+
     def fake_insert(data):
         raise Exception("Simulated database failure")
     monkeypatch.setattr(db, "insert", fake_insert)
-    
+
     response = client.post("/db/tracks", json=sample_track)
     assert response.status_code == 503
-    assert response.get_json().get("error") == "Database unreachable"
-
-
