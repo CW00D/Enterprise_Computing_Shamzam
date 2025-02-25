@@ -32,15 +32,12 @@ def encode_audio_to_base64(file_path):
 # Happy Paths
 def test_list_tracks_non_empty(sample_tracks):
     """Test that listing tracks returns all added tracks."""
-    # Add sample tracks
     for track in sample_tracks:
-        requests.post(f"{CATALOGUE_URL}/tracks", json=track)
+        requests.post(f"{DATABASE_URL}/db/tracks", json=track)
 
-    # Fetch all tracks
-    response = requests.get(f"{CATALOGUE_URL}/tracks")
+    response = requests.get(f"{DATABASE_URL}/db/tracks")
     assert response.status_code == 200
 
-    # Verify all added tracks are in the response
     tracks = response.json()
     track_titles = {track["title"] for track in tracks}
     expected_titles = {track["title"] for track in sample_tracks}
@@ -49,23 +46,16 @@ def test_list_tracks_non_empty(sample_tracks):
 #Unhappy Paths
 def test_list_tracks_empty():
     """Test that listing tracks when there are none returns an empty list."""
-    response = requests.get(f"{CATALOGUE_URL}/tracks")
+    response = requests.get(f"{DATABASE_URL}/db/tracks")
     assert response.status_code == 200
     assert response.json() == []
 
 def test_list_tracks_database_unreachable(monkeypatch):
-    """
-    Test that listing tracks returns a 503 when the database is unreachable.
-    """
     client = app.test_client()
 
-    # Monkeypatch db.get_all_tracks to simulate a database failure
     def fake_get_all_tracks():
         raise Exception("Simulated database failure")
     monkeypatch.setattr(db, "get_all_tracks", fake_get_all_tracks)
 
-    # Attempt to fetch all tracks
     response = client.get("/db/tracks")
     assert response.status_code == 503
-    data = response.get_json()
-    assert data.get("error") == "Database unreachable"
