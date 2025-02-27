@@ -4,7 +4,7 @@ import os
 class MusicTrackDatabase:
     def __init__(self, table="tracks"):
         self.table = table
-        self.database_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../data"))
+        self.database_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data"))
         self.database_path = os.path.join(self.database_dir, self.table + ".db")
 
         self.ensure_data_directory()

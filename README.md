@@ -26,24 +26,27 @@ The project follows a microservices architecture, with separate services handlin
 │──src/
 │   │──Catalogue_management_microservice/
 │   |   │──catalogue_management_microservice.py
-│   |   └──catalogue.log (Note: Generated on microservice execution)
+│   |   │──catalogue.log (Note: Generated on microservice execution)
+│   |   └──requirements.txt
 |   |
 │   │──Database_management_microservice/
 |   |   │──database_management_microservice.py
-│   |   └──database.log (Note: Generated on microservice execution)
+|   |   │──database_helper.py
+│   |   │──database.log (Note: Generated on microservice execution)
+│   |   └──requirements.txt
 |   |
-│   │──Audio_recognition_microservice/
-│   |   │──audio_recognition_microservice.py
-│   |   │──audio.log (Note: Generated on microservice execution)
-│   |   └──.env (to be added my user and should contain their own AUDD.io API KEY)
-|   |
-│   └──database_helper.py
+│   └──Audio_recognition_microservice/
+│       │──audio_recognition_microservice.py
+│       │──audio.log (Note: Generated on microservice execution)
+│       │──.env (to be added my user and should contain their own AUDD.io API KEY)
+│       └──requirements.txt
 │
 │──tests/
 │   │──user_story_1_tests.py
 │   │──user_story_2_tests.py
 │   │──user_story_3_tests.py
-│   └──user_story_4_tests.py
+│   │──user_story_4_tests.py
+│   └──requirements.txt
 │
 │──Music/  (Note: Empty in submission, users should add music files here for testing)
 │   │──Fragments/
@@ -54,7 +57,6 @@ The project follows a microservices architecture, with separate services handlin
 │──data/
 │   └──data.db (Note: Generated on database microservice execution)
 │
-│──requirements.txt
 │──README.md
 │──Design_Document.pdf
 └──Gen_AI_Declaration.pdf
