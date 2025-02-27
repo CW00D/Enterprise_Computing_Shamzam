@@ -35,6 +35,7 @@ def test_recognise_valid_fragment(sample_track):
     response = requests.post(f"{AUDIO_RECOGNITION_URL}/recognise", json=recognition_data)
 
     assert response.status_code == 200
+    assert response.json()["encoded_track"] == encode_audio_to_base64("./Music/Tracks/Dont Look Back in Anger.wav")
 
 #Unhappy Paths
 def test_recognise_unknown_fragment():
