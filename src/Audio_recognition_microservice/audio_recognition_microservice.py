@@ -20,7 +20,7 @@ if not AUDDIO_TOKEN:
     raise ValueError("AUDDIO_TOKEN is not set in the environment or .env file!")
 
 app = Flask(__name__)
-DATABASE_URL = "http://localhost:3001"
+DATABASE_URL = "http://localhost:3002"
 
 @app.route("/recognise", methods=["POST"])
 def recognise():
@@ -35,13 +35,13 @@ def recognise():
 
     if not encoded_track_fragment:
         logging.warning("Missing encoded_track_fragment")
-        return jsonify({"error": "Missing encoded_track_fragment"}), 400
+        return "", 400
 
     result = get_track_title_from_api(encoded_track_fragment)
 
     if not result.get("success"):
         logging.warning(f"API error: {result.get('error_message')}")
-        return jsonify({"error": result.get("error_message")}), result.get("error_code")
+        return "", result.get("error_code")
     
     title = result.get("title")
 
@@ -51,10 +51,10 @@ def recognise():
         return jsonify(response.json()), 200
     elif response.status_code == 404:
         logging.info("Track not found in database")
-        return jsonify({"error": "Track not found in database"}), 404
+        return "", 404
     else:
         logging.warning("Unexpected error from database service")
-        return jsonify({"error": "Unexpected error from database service"}), response.status_code
+        return "", response.status_code
 
 def get_track_title_from_api(encoded_track_fragment: str):
     """
@@ -103,4 +103,4 @@ def get_track_title_from_api(encoded_track_fragment: str):
     return {"success": False, "error_code": 500, "error_message": "Track not recognised"}
 
 if __name__ == "__main__":
-    app.run(host="localhost", port=3002, debug=True)
+    app.run(host="localhost", port=3001, debug=True)

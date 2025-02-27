@@ -9,7 +9,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src", "Catalogue_
 from catalogue_management_microservice import app as catalogue_app
 
 CATALOGUE_URL = "http://localhost:3000"
-DATABASE_URL = "http://localhost:3001"
+DATABASE_URL = "http://localhost:3002"
 
 @pytest.fixture
 def sample_track():

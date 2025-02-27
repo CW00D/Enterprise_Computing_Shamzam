@@ -9,7 +9,7 @@ from database_management_microservice import app, db
 
 
 CATALOGUE_URL = "http://localhost:3000"
-DATABASE_URL = "http://localhost:3001"
+DATABASE_URL = "http://localhost:3002"
 
 @pytest.fixture
 def sample_track():

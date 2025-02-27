@@ -121,4 +121,4 @@ def reset_db():
     return jsonify({"message": "Database reset successfully"}), 200
 
 if __name__ == "__main__":
-    app.run(host="localhost", port=3001, debug=True)
+    app.run(host="localhost", port=3002, debug=True)

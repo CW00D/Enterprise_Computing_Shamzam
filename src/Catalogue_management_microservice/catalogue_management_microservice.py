@@ -10,7 +10,7 @@ log_dir = os.path.join(os.path.dirname(__file__))
 logging.basicConfig(filename=os.path.join(log_dir, "catalogue.log"), level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 app = Flask(__name__)
-DATABASE_MANAGEMENT_MICROSERVICE_URL = "http://localhost:3001"
+DATABASE_MANAGEMENT_MICROSERVICE_URL = "http://localhost:3002"
 
 # Add a new track
 @app.route("/tracks", methods=["POST"])
@@ -29,7 +29,7 @@ def add_track():
     data = request.get_json()
     if not data or "title" not in data or "encoded_track" not in data:
         logging.warning("Missing required fields")
-        return jsonify({"error": "Missing required fields"}), 400
+        return "", 400
 
     #ADD CHECK FOR ENDCODED TRACK DECODING INTO A .WAV
     
@@ -75,19 +75,6 @@ def get_tracks():
         A JSON list of tracks.
     """
     response = requests.get(f"{DATABASE_MANAGEMENT_MICROSERVICE_URL}/db/tracks")
-    return "", response.status_code
-
-# Get track by title and artist
-@app.route("/tracks/search", methods=["GET"])
-def search_tracks():
-    """
-    Searches for a track by title.
-
-    Returns:
-        A JSON response with the track details or an error.
-    """
-    title = request.args.get("title")
-    response = requests.get(f"{DATABASE_MANAGEMENT_MICROSERVICE_URL}/db/tracks/search?title={title}")
     return "", response.status_code
 
 if __name__ == "__main__":

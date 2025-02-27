@@ -3,8 +3,8 @@ import pytest
 import base64
 
 CATALOGUE_URL = "http://localhost:3000"
-DATABASE_URL = "http://localhost:3001"
-AUDIO_RECOGNITION_URL = "http://localhost:3002"
+AUDIO_RECOGNITION_URL = "http://localhost:3001"
+DATABASE_URL = "http://localhost:3002"
 
 @pytest.fixture
 def sample_track():
